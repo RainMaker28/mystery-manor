@@ -13,6 +13,7 @@ class AccusationScene extends Phaser.Scene {
 
     create() {
         this.cameras.main.resetFX();
+        if (TouchControls.enabled) TouchControls.hide();
         this.cameras.main.setBackgroundColor('#1A1A2E');
         this.cameras.main.fadeIn(500);
 

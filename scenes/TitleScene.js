@@ -6,6 +6,7 @@ class TitleScene extends Phaser.Scene {
 
     create() {
         this.cameras.main.resetFX();
+        if (TouchControls.enabled) TouchControls.hide();
         SoundManager.init();
         SoundManager.stopMusic();
         // Don't auto-play title music — browsers block it before user interaction

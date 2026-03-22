@@ -2,17 +2,25 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     <title>Mystery Manor</title>
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
-        body {
+        html, body {
             background: #1a1a2e;
             display: flex;
             justify-content: center;
             align-items: center;
             height: 100vh;
+            height: 100dvh;
             overflow: hidden;
+            touch-action: none;
+            -webkit-touch-callout: none;
+            -webkit-user-select: none;
+            user-select: none;
+            overscroll-behavior: none;
         }
         #game-container {
             image-rendering: pixelated;
@@ -21,6 +29,7 @@
         canvas {
             image-rendering: pixelated;
             image-rendering: crisp-edges;
+            touch-action: none;
         }
     </style>
 </head>
@@ -28,6 +37,7 @@
     <div id="game-container"></div>
     <script src="https://cdn.jsdelivr.net/npm/phaser@3.60.0/dist/phaser.min.js"></script>
     <script src="audio.js"></script>
+    <script src="touch.js"></script>
     <script src="assets.js"></script>
     <script src="map.js"></script>
     <script src="scenes/BootScene.js"></script>
@@ -44,6 +54,19 @@
                 e.preventDefault();
             }
         }, false);
+
+        // Prevent pinch-to-zoom on iOS
+        document.addEventListener('gesturestart', function(e) { e.preventDefault(); }, { passive: false });
+        document.addEventListener('gesturechange', function(e) { e.preventDefault(); }, { passive: false });
+        document.addEventListener('gestureend', function(e) { e.preventDefault(); }, { passive: false });
+
+        // Prevent pull-to-refresh
+        document.addEventListener('touchmove', function(e) {
+            if (e.touches.length > 1) e.preventDefault();
+        }, { passive: false });
+
+        // Init touch controls
+        TouchControls.init();
     </script>
 </body>
 </html>

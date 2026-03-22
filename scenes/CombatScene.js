@@ -177,6 +177,12 @@ class CombatScene extends Phaser.Scene {
             duration: 600, yoyo: true, repeat: -1
         });
 
+        // Touch controls — change button to STAB for combat
+        if (TouchControls.enabled) {
+            TouchControls.show();
+            TouchControls.setButtonLabel('STAB');
+        }
+
         SoundManager.playCombatMusic();
         this.cameras.main.fadeIn(500);
     }
@@ -467,6 +473,10 @@ class CombatScene extends Phaser.Scene {
     // ===== UPDATE =====
     update(time, delta) {
         var actions = this.actionQueue.splice(0);
+        // Touch action button → attack (hold mode — keep stabbing while held)
+        if (TouchControls.enabled && TouchControls.consumeAction(true)) {
+            actions.push('attack');
+        }
         var hasAttack = actions.includes('attack');
 
         if (!this.gameStarted) {
@@ -482,13 +492,23 @@ class CombatScene extends Phaser.Scene {
 
         if (!this.bearAlive || !this.enemyAlive) return;
 
-        // Bear movement
+        // Bear movement (keyboard + touch joystick)
         var speed = 220;
         var vx = 0, vy = 0;
         if (this.cursors.left.isDown || this.keyA.isDown) { vx = -speed; this.bearDir = 'left'; }
         else if (this.cursors.right.isDown || this.keyD.isDown) { vx = speed; this.bearDir = 'right'; }
         if (this.cursors.up.isDown || this.keyW.isDown) { vy = -speed; this.bearDir = 'up'; }
         else if (this.cursors.down.isDown || this.keyS.isDown) { vy = speed; this.bearDir = 'down'; }
+
+        // Touch joystick
+        if (TouchControls.enabled) {
+            var touch = TouchControls.getMovement(speed);
+            if (touch.dir) {
+                vx = touch.vx;
+                vy = touch.vy;
+                this.bearDir = touch.dir;
+            }
+        }
 
         this.bear.body.setVelocity(vx, vy);
 

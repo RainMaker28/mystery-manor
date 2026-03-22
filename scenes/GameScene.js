@@ -92,6 +92,12 @@ class GameScene extends Phaser.Scene {
         SoundManager.playInvestigationMusic();
         this.footstepTimer = 0;
 
+        // Touch controls
+        if (TouchControls.enabled) {
+            TouchControls.show();
+            TouchControls.setButtonLabel('ACT');
+        }
+
         this.time.addEvent({ delay: 1000, callback: () => { this.gameTime++; }, loop: true });
 
         this.time.delayedCall(600, () => {
@@ -663,6 +669,10 @@ class GameScene extends Phaser.Scene {
     update(time, delta) {
         // Drain the action queue
         const actions = this.actionQueue.splice(0);
+        // Merge touch action button into actions
+        if (TouchControls.enabled && TouchControls.consumeAction()) {
+            actions.push('interact');
+        }
         const hasInteract = actions.includes('interact');
         const hasJournal = actions.includes('journal');
         const hasEscape = actions.includes('escape');
@@ -708,13 +718,23 @@ class GameScene extends Phaser.Scene {
         if (hasJournal) { this.showJournal(); return; }
         if (hasInteract) this.handleInteraction();
 
-        // Movement
+        // Movement (keyboard + touch joystick)
         const speed = SPEED_MODE ? 250 : 160;
         let vx = 0, vy = 0;
         if (this.cursors.left.isDown || this.keyA.isDown) { vx = -speed; this.playerDir = 'left'; }
         else if (this.cursors.right.isDown || this.keyD.isDown) { vx = speed; this.playerDir = 'right'; }
         if (this.cursors.up.isDown || this.keyW.isDown) { vy = -speed; this.playerDir = 'up'; }
         else if (this.cursors.down.isDown || this.keyS.isDown) { vy = speed; this.playerDir = 'down'; }
+
+        // Touch joystick override
+        if (TouchControls.enabled) {
+            const touch = TouchControls.getMovement(speed);
+            if (touch.dir) {
+                vx = touch.vx;
+                vy = touch.vy;
+                this.playerDir = touch.dir;
+            }
+        }
 
         this.player.body.setVelocity(vx, vy);
 

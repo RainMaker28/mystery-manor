@@ -21,6 +21,7 @@ class ResultScene extends Phaser.Scene {
 
     create() {
         this.cameras.main.resetFX();
+        if (TouchControls.enabled) TouchControls.hide();
         this.cameras.main.setBackgroundColor('#0D0D1A');
         this.cameras.main.fadeIn(1000);
 
