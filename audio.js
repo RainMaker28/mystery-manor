@@ -49,6 +49,14 @@ const SoundManager = {
         this._titleTimeout = null;
         this._investTimeout = null;
         this._combatTimeout = null;
+        // Kill all pre-scheduled oscillators by disconnecting the old gain node
+        // and creating a fresh one — orphaned oscillators play into nothing
+        if (this.musicGain && this.ctx) {
+            try { this.musicGain.disconnect(); } catch(e) {}
+            this.musicGain = this.ctx.createGain();
+            this.musicGain.gain.value = 0.35;
+            this.musicGain.connect(this.masterGain);
+        }
     },
 
     // =====================================================
