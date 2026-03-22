@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Mystery Manor</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            background: #1a1a2e;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            overflow: hidden;
+        }
+        #game-container {
+            image-rendering: pixelated;
+            image-rendering: crisp-edges;
+        }
+        canvas {
+            image-rendering: pixelated;
+            image-rendering: crisp-edges;
+        }
+    </style>
+</head>
+<body>
+    <div id="game-container"></div>
+    <script src="https://cdn.jsdelivr.net/npm/phaser@3.60.0/dist/phaser.min.js"></script>
+    <script src="audio.js"></script>
+    <script src="assets.js"></script>
+    <script src="map.js"></script>
+    <script src="scenes/BootScene.js"></script>
+    <script src="scenes/TitleScene.js"></script>
+    <script src="scenes/GameScene.js"></script>
+    <script src="scenes/AccusationScene.js"></script>
+    <script src="scenes/CombatScene.js"></script>
+    <script src="scenes/ResultScene.js"></script>
+    <script src="game.js"></script>
+    <script>
+        // Prevent page scroll on arrow keys only (Space handled by game scenes)
+        window.addEventListener('keydown', function(e) {
+            if (['ArrowUp','ArrowDown','ArrowLeft','ArrowRight'].includes(e.key)) {
+                e.preventDefault();
+            }
+        }, false);
+    </script>
+</body>
+</html>
