@@ -96,6 +96,7 @@ class GameScene extends Phaser.Scene {
         if (TouchControls.enabled) {
             TouchControls.show();
             TouchControls.setButtonLabel('ACT');
+            TouchControls.showJournal();
         }
 
         this.time.addEvent({ delay: 1000, callback: () => { this.gameTime++; }, loop: true });
@@ -672,6 +673,10 @@ class GameScene extends Phaser.Scene {
         // Merge touch action button into actions
         if (TouchControls.enabled && TouchControls.consumeAction()) {
             actions.push('interact');
+        }
+        // Merge touch journal button
+        if (TouchControls.enabled && TouchControls.consumeJournal()) {
+            actions.push('journal');
         }
         const hasInteract = actions.includes('interact');
         const hasJournal = actions.includes('journal');

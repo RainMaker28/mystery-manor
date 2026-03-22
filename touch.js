@@ -116,6 +116,44 @@ const TouchControls = {
             actBtn.style.background = 'rgba(204,170,68,0.25)';
             actBtn.style.transform = 'scale(1)';
         });
+
+        // ===== JOURNAL BUTTON (top-right) =====
+        const journalBtn = document.createElement('div');
+        journalBtn.id = 'journal-btn';
+        journalBtn.style.cssText = `
+            position:absolute; top:15px; right:15px;
+            width:56px; height:56px; border-radius:12px;
+            background:rgba(136,119,170,0.25); border:2px solid rgba(136,119,170,0.5);
+            pointer-events:auto; touch-action:none;
+            display:flex; align-items:center; justify-content:center;
+            font-family:monospace; font-size:20px; color:rgba(255,255,255,0.7);
+            user-select:none; -webkit-user-select:none;
+        `;
+        journalBtn.textContent = '📓';
+        overlay.appendChild(journalBtn);
+
+        this.journalBtn = journalBtn;
+        this.journalPressed = false;
+
+        journalBtn.addEventListener('touchstart', (e) => {
+            e.preventDefault();
+            self.journalPressed = true;
+            journalBtn.style.background = 'rgba(136,119,170,0.5)';
+            journalBtn.style.transform = 'scale(0.9)';
+        }, { passive: false });
+
+        journalBtn.addEventListener('touchend', (e) => {
+            e.preventDefault();
+            self.journalPressed = false;
+            journalBtn.style.background = 'rgba(136,119,170,0.25)';
+            journalBtn.style.transform = 'scale(1)';
+        }, { passive: false });
+
+        journalBtn.addEventListener('touchcancel', (e) => {
+            self.journalPressed = false;
+            journalBtn.style.background = 'rgba(136,119,170,0.25)';
+            journalBtn.style.transform = 'scale(1)';
+        });
     },
 
     _updateJoystick(touch, rect) {
@@ -175,11 +213,29 @@ const TouchControls = {
         return false;
     },
 
+    // Check if journal button was tapped (consume the press)
+    consumeJournal() {
+        if (this.journalPressed) {
+            this.journalPressed = false;
+            return true;
+        }
+        return false;
+    },
+
     // Set button label (changes between scenes)
     setButtonLabel(text) {
         if (this.actionBtn) {
             this.actionBtn.textContent = text;
         }
+    },
+
+    // Show/hide journal button separately (only visible in GameScene)
+    showJournal() {
+        if (this.journalBtn) this.journalBtn.style.display = 'flex';
+    },
+
+    hideJournal() {
+        if (this.journalBtn) this.journalBtn.style.display = 'none';
     },
 
     // Show/hide controls

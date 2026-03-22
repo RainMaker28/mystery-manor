@@ -177,10 +177,11 @@ class CombatScene extends Phaser.Scene {
             duration: 600, yoyo: true, repeat: -1
         });
 
-        // Touch controls — change button to STAB for combat
+        // Touch controls — change button to STAB for combat, hide journal
         if (TouchControls.enabled) {
             TouchControls.show();
             TouchControls.setButtonLabel('STAB');
+            TouchControls.hideJournal();
         }
 
         SoundManager.playCombatMusic();
