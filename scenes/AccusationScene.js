@@ -16,46 +16,49 @@ class AccusationScene extends Phaser.Scene {
         if (TouchControls.enabled) TouchControls.hide();
         this.cameras.main.setBackgroundColor('#1A1A2E');
         this.cameras.main.fadeIn(500);
+        updateSafeZone();
 
         const cx = GAME_WIDTH / 2;
+        const sy = (y) => SAFE.top + 8 + (y - 40) / 480 * (SAFE.bottom - SAFE.top - 16);
 
-        this.add.text(cx, 40, 'THE ACCUSATION', {
-            fontFamily: 'monospace', fontSize: '32px', color: '#CC3333', fontStyle: 'bold'
+        this.add.text(cx, sy(40), 'THE ACCUSATION', {
+            fontFamily: 'monospace', fontSize: '28px', color: '#CC3333', fontStyle: 'bold'
         }).setOrigin(0.5);
 
-        this.add.text(cx, 75, 'Who killed ' + this.gameState.victimName + '?', {
-            fontFamily: 'monospace', fontSize: '18px', color: '#CCAA44'
+        this.add.text(cx, sy(72), 'Who killed ' + this.gameState.victimName + '?', {
+            fontFamily: 'monospace', fontSize: '16px', color: '#CCAA44'
         }).setOrigin(0.5);
 
         // Suspect lineup
         const suspects = ['fox', 'peacock', 'badger', 'rabbit', 'cat', 'parrot'];
         const startX = 100;
         const spacing = (GAME_WIDTH - 200) / 5;
+        const lineupY = sy(200);
 
         suspects.forEach((suspect, i) => {
             const x = startX + i * spacing;
-            const y = 210;
+            const y = lineupY;
             const data = this.npcData[suspect];
 
-            const bg = this.add.rectangle(x, y, 110, 140, 0x2A2A4E)
+            const bg = this.add.rectangle(x, y, 110, 130, 0x2A2A4E)
                 .setInteractive({ useHandCursor: true });
-            const border = this.add.rectangle(x, y, 114, 144, 0x444466);
+            const border = this.add.rectangle(x, y, 114, 134, 0x444466);
             border.setStrokeStyle(2, 0x444466);
             border.setFillStyle(0, 0);
 
-            this.add.sprite(x, y - 20, `npc_${suspect}`, 0).setScale(4);
+            this.add.sprite(x, y - 18, `npc_${suspect}`, 0).setScale(3.5);
 
-            this.add.text(x, y + 40, data.name.split(' ')[0], {
-                fontFamily: 'monospace', fontSize: '13px', color: data.color
+            this.add.text(x, y + 36, data.name.split(' ')[0], {
+                fontFamily: 'monospace', fontSize: '12px', color: data.color
             }).setOrigin(0.5);
 
-            this.add.text(x, y + 56, data.role, {
-                fontFamily: 'monospace', fontSize: '11px', color: '#8877AA'
+            this.add.text(x, y + 50, data.role, {
+                fontFamily: 'monospace', fontSize: '10px', color: '#8877AA'
             }).setOrigin(0.5);
 
             if (this.gameState.npcsInterviewed.includes(suspect)) {
-                this.add.text(x + 42, y - 58, '✓', {
-                    fontFamily: 'monospace', fontSize: '18px', color: '#44CC44'
+                this.add.text(x + 42, y - 52, '✓', {
+                    fontFamily: 'monospace', fontSize: '16px', color: '#44CC44'
                 }).setOrigin(0.5);
             }
 
@@ -70,19 +73,19 @@ class AccusationScene extends Phaser.Scene {
             bg.on('pointerdown', () => this.makeAccusation(suspect));
         });
 
-        this.add.sprite(cx, 380, 'bear', 0).setScale(4);
+        this.add.sprite(cx, sy(370), 'bear', 0).setScale(3.5);
 
-        this.add.text(cx, 420, '"Let me think carefully... One of you is the killer."', {
-            fontFamily: 'monospace', fontSize: '14px', color: '#CCAA44', fontStyle: 'italic'
+        this.add.text(cx, sy(410), '"Let me think carefully... One of you is the killer."', {
+            fontFamily: 'monospace', fontSize: '13px', color: '#CCAA44', fontStyle: 'italic'
         }).setOrigin(0.5);
 
-        this.add.text(cx, 460, `Evidence: ${this.gameState.cluesFound.length} clues | ${this.gameState.npcsInterviewed.length} interviews`, {
-            fontFamily: 'monospace', fontSize: '14px', color: '#665588'
+        this.add.text(cx, sy(445), `Evidence: ${this.gameState.cluesFound.length} clues | ${this.gameState.npcsInterviewed.length} interviews`, {
+            fontFamily: 'monospace', fontSize: '13px', color: '#665588'
         }).setOrigin(0.5);
 
         // Go back button — restores full game state
-        const backBtn = this.add.text(cx, 510, '[ Go back and investigate more ]', {
-            fontFamily: 'monospace', fontSize: '15px', color: '#665588'
+        const backBtn = this.add.text(cx, sy(490), '[ Go back and investigate more ]', {
+            fontFamily: 'monospace', fontSize: '14px', color: '#665588'
         }).setOrigin(0.5).setInteractive({ useHandCursor: true });
         backBtn.on('pointerover', () => backBtn.setColor('#CCAA44'));
         backBtn.on('pointerout', () => backBtn.setColor('#665588'));

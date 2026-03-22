@@ -24,6 +24,9 @@ class ResultScene extends Phaser.Scene {
         if (TouchControls.enabled) TouchControls.hide();
         this.cameras.main.setBackgroundColor('#0D0D1A');
         this.cameras.main.fadeIn(1000);
+        updateSafeZone();
+        // Map Y coords into safe zone so ENVELOP crop doesn't hide content
+        this.sy = (y) => SAFE.top + 6 + (y - 20) / 560 * (SAFE.bottom - SAFE.top - 12);
 
         const cx = GAME_WIDTH / 2;
         const killerData = this.npcData[this.killer];
@@ -52,21 +55,22 @@ class ResultScene extends Phaser.Scene {
 
     // --- OUTCOME 1: Won fight + correct accusation ---
     showPerfectVictory(cx, killerData) {
+        const sy = this.sy;
         this.time.delayedCall(500, () => {
-            this.add.text(cx, 30, 'CASE SOLVED!', {
-                fontFamily: 'monospace', fontSize: '40px', color: '#44CC44', fontStyle: 'bold'
+            this.add.text(cx, sy(30), 'CASE SOLVED!', {
+                fontFamily: 'monospace', fontSize: '36px', color: '#44CC44', fontStyle: 'bold'
             }).setOrigin(0.5);
 
-            this.add.text(cx, 65, 'You defeated and unmasked the killer!', {
-                fontFamily: 'monospace', fontSize: '16px', color: '#88CC88'
+            this.add.text(cx, sy(65), 'You defeated and unmasked the killer!', {
+                fontFamily: 'monospace', fontSize: '15px', color: '#88CC88'
             }).setOrigin(0.5);
 
-            this.add.sprite(cx - 60, 140, 'bear', 9).setScale(5);
-            this.add.sprite(cx + 60, 140, `npc_${this.killer}`, 0).setScale(5).setAlpha(0.6);
-            this.add.text(cx, 140, '⛓', { fontSize: '28px' }).setOrigin(0.5);
+            this.add.sprite(cx - 60, sy(130), 'bear', 9).setScale(4);
+            this.add.sprite(cx + 60, sy(130), `npc_${this.killer}`, 0).setScale(4).setAlpha(0.6);
+            this.add.text(cx, sy(130), '⛓', { fontSize: '24px' }).setOrigin(0.5);
 
-            this.add.text(cx, 200, `"${killerData.name}, you are under arrest\nfor the murder of ${this.victimName}!"`, {
-                fontFamily: 'monospace', fontSize: '15px', color: '#CCAA44', fontStyle: 'italic', align: 'center'
+            this.add.text(cx, sy(190), `"${killerData.name}, you are under arrest\nfor the murder of ${this.victimName}!"`, {
+                fontFamily: 'monospace', fontSize: '14px', color: '#CCAA44', fontStyle: 'italic', align: 'center'
             }).setOrigin(0.5);
 
             const confessions = {
@@ -78,19 +82,19 @@ class ResultScene extends Phaser.Scene {
                 parrot: '"SQUAWK! He tried to put me in a CAGE! NOBODY cages Captain Polly! SQUAWK!"'
             };
 
-            this.add.text(cx, 260, confessions[this.killer], {
-                fontFamily: 'monospace', fontSize: '13px', color: '#CC8888', fontStyle: 'italic',
+            this.add.text(cx, sy(250), confessions[this.killer], {
+                fontFamily: 'monospace', fontSize: '12px', color: '#CC8888', fontStyle: 'italic',
                 wordWrap: { width: 700 }, align: 'center'
             }).setOrigin(0.5);
 
-            this.showCaseReport(cx, 300);
+            this.showCaseReport(cx, 290);
 
             let rating = '⭐';
             if (this.cluesFound.length >= this.totalClues * 0.8 && this.npcsInterviewed.length === 6) rating = '⭐⭐⭐';
             else if (this.cluesFound.length >= this.totalClues * 0.5) rating = '⭐⭐';
 
-            this.add.text(cx, 460, `Detective Rating: ${rating}`, {
-                fontFamily: 'monospace', fontSize: '20px', color: '#CCAA44'
+            this.add.text(cx, sy(430), `Detective Rating: ${rating}`, {
+                fontFamily: 'monospace', fontSize: '18px', color: '#CCAA44'
             }).setOrigin(0.5);
 
             this.createConfetti();
@@ -101,29 +105,30 @@ class ResultScene extends Phaser.Scene {
 
     // --- OUTCOME 2: Won fight + wrong accusation ---
     showWrongAccusation(cx, killerData, accusedData) {
+        const sy = this.sy;
         this.time.delayedCall(500, () => {
-            this.add.text(cx, 30, 'WRONG SUSPECT!', {
-                fontFamily: 'monospace', fontSize: '40px', color: '#CC8833', fontStyle: 'bold'
+            this.add.text(cx, sy(30), 'WRONG SUSPECT!', {
+                fontFamily: 'monospace', fontSize: '36px', color: '#CC8833', fontStyle: 'bold'
             }).setOrigin(0.5);
 
-            this.add.text(cx, 65, `You defeated ${accusedData.name}... but they weren't the killer!`, {
-                fontFamily: 'monospace', fontSize: '16px', color: '#CC8888', align: 'center'
+            this.add.text(cx, sy(65), `You defeated ${accusedData.name}... but they weren't the killer!`, {
+                fontFamily: 'monospace', fontSize: '14px', color: '#CC8888', align: 'center'
             }).setOrigin(0.5);
 
-            this.add.sprite(cx - 80, 150, 'bear', 0).setScale(5);
-            this.add.sprite(cx, 150, `npc_${this.accusedSuspect}`, 0).setScale(5).setAlpha(0.5);
-            this.add.sprite(cx + 80, 150, `npc_${this.killer}`, 0).setScale(5);
+            this.add.sprite(cx - 80, sy(140), 'bear', 0).setScale(4);
+            this.add.sprite(cx, sy(140), `npc_${this.accusedSuspect}`, 0).setScale(4).setAlpha(0.5);
+            this.add.sprite(cx + 80, sy(140), `npc_${this.killer}`, 0).setScale(4);
 
-            this.add.text(cx + 80, 105, '← REAL KILLER', {
-                fontFamily: 'monospace', fontSize: '11px', color: '#CC3333'
+            this.add.text(cx + 80, sy(100), '← REAL KILLER', {
+                fontFamily: 'monospace', fontSize: '10px', color: '#CC3333'
             }).setOrigin(0.5);
 
-            this.add.text(cx, 220, `"Wait... ${accusedData.name} is innocent?!"`, {
-                fontFamily: 'monospace', fontSize: '16px', color: '#CCAA44', fontStyle: 'italic'
+            this.add.text(cx, sy(210), `"Wait... ${accusedData.name} is innocent?!"`, {
+                fontFamily: 'monospace', fontSize: '15px', color: '#CCAA44', fontStyle: 'italic'
             }).setOrigin(0.5);
 
-            this.add.text(cx, 260, `The real killer was ${killerData.name}!`, {
-                fontFamily: 'monospace', fontSize: '20px', color: '#CC3333', fontStyle: 'bold'
+            this.add.text(cx, sy(245), `The real killer was ${killerData.name}!`, {
+                fontFamily: 'monospace', fontSize: '18px', color: '#CC3333', fontStyle: 'bold'
             }).setOrigin(0.5);
 
             const taunts = {
@@ -135,16 +140,16 @@ class ResultScene extends Phaser.Scene {
                 parrot: '"SQUAWK! FOOLED YOU! Captain Polly wins again! HAHAHAHA!"'
             };
 
-            this.add.text(cx, 310, taunts[this.killer], {
-                fontFamily: 'monospace', fontSize: '13px', color: '#CC8888', fontStyle: 'italic',
+            this.add.text(cx, sy(295), taunts[this.killer], {
+                fontFamily: 'monospace', fontSize: '12px', color: '#CC8888', fontStyle: 'italic',
                 wordWrap: { width: 700 }, align: 'center'
             }).setOrigin(0.5);
 
-            this.add.text(cx, 370, '"I won the fight, but got the wrong suspect.\nBack to detective school for me..."', {
-                fontFamily: 'monospace', fontSize: '15px', color: '#CCAA44', fontStyle: 'italic', align: 'center'
+            this.add.text(cx, sy(350), '"I won the fight, but got the wrong suspect.\nBack to detective school for me..."', {
+                fontFamily: 'monospace', fontSize: '14px', color: '#CCAA44', fontStyle: 'italic', align: 'center'
             }).setOrigin(0.5);
 
-            this.showCaseReport(cx, 410);
+            this.showCaseReport(cx, 400);
         });
 
         this.time.delayedCall(2000, () => this.addPlayAgain(cx));
@@ -152,20 +157,21 @@ class ResultScene extends Phaser.Scene {
 
     // --- OUTCOME 3: Lost fight + correct accusation ---
     showKillerEscaped(cx, killerData) {
+        const sy = this.sy;
         this.time.delayedCall(500, () => {
-            this.add.text(cx, 30, 'THE KILLER ESCAPED!', {
-                fontFamily: 'monospace', fontSize: '40px', color: '#CC3333', fontStyle: 'bold'
+            this.add.text(cx, sy(30), 'THE KILLER ESCAPED!', {
+                fontFamily: 'monospace', fontSize: '36px', color: '#CC3333', fontStyle: 'bold'
             }).setOrigin(0.5);
 
-            this.add.text(cx, 65, 'You were right... but they overpowered you!', {
-                fontFamily: 'monospace', fontSize: '16px', color: '#CC8888'
+            this.add.text(cx, sy(65), 'You were right... but they overpowered you!', {
+                fontFamily: 'monospace', fontSize: '14px', color: '#CC8888'
             }).setOrigin(0.5);
 
-            this.add.sprite(cx - 60, 150, 'bear', 0).setScale(5).setAlpha(0.5);
-            this.add.sprite(cx + 60, 150, `npc_${this.killer}`, 0).setScale(5);
+            this.add.sprite(cx - 60, sy(140), 'bear', 0).setScale(4).setAlpha(0.5);
+            this.add.sprite(cx + 60, sy(140), `npc_${this.killer}`, 0).setScale(4);
 
-            this.add.text(cx, 220, `${killerData.name} WAS the killer!`, {
-                fontFamily: 'monospace', fontSize: '20px', color: '#CCAA44', fontStyle: 'bold'
+            this.add.text(cx, sy(210), `${killerData.name} WAS the killer!`, {
+                fontFamily: 'monospace', fontSize: '18px', color: '#CCAA44', fontStyle: 'bold'
             }).setOrigin(0.5);
 
             const escapeLines = {
@@ -177,16 +183,16 @@ class ResultScene extends Phaser.Scene {
                 parrot: '"SQUAWK! RIGHT ANSWER! WRONG OUTCOME! Captain Polly flies free! SQUAWK!"'
             };
 
-            this.add.text(cx, 280, escapeLines[this.killer], {
-                fontFamily: 'monospace', fontSize: '13px', color: '#CC8888', fontStyle: 'italic',
+            this.add.text(cx, sy(270), escapeLines[this.killer], {
+                fontFamily: 'monospace', fontSize: '12px', color: '#CC8888', fontStyle: 'italic',
                 wordWrap: { width: 700 }, align: 'center'
             }).setOrigin(0.5);
 
-            this.add.text(cx, 340, '"My detective instincts were right...\nbut I need to work on my fighting skills!"', {
-                fontFamily: 'monospace', fontSize: '15px', color: '#CCAA44', fontStyle: 'italic', align: 'center'
+            this.add.text(cx, sy(330), '"My detective instincts were right...\nbut I need to work on my fighting skills!"', {
+                fontFamily: 'monospace', fontSize: '14px', color: '#CCAA44', fontStyle: 'italic', align: 'center'
             }).setOrigin(0.5);
 
-            this.showCaseReport(cx, 400);
+            this.showCaseReport(cx, 390);
         });
 
         this.time.delayedCall(2000, () => this.addPlayAgain(cx));
@@ -194,25 +200,26 @@ class ResultScene extends Phaser.Scene {
 
     // --- OUTCOME 4: Lost fight + wrong accusation ---
     showTotalDefeat(cx, killerData, accusedData) {
+        const sy = this.sy;
         this.time.delayedCall(500, () => {
-            this.add.text(cx, 30, 'TOTAL DEFEAT!', {
-                fontFamily: 'monospace', fontSize: '40px', color: '#CC3333', fontStyle: 'bold'
+            this.add.text(cx, sy(30), 'TOTAL DEFEAT!', {
+                fontFamily: 'monospace', fontSize: '36px', color: '#CC3333', fontStyle: 'bold'
             }).setOrigin(0.5);
 
-            this.add.text(cx, 65, 'Wrong suspect AND they beat you in combat!', {
-                fontFamily: 'monospace', fontSize: '16px', color: '#CC4444'
+            this.add.text(cx, sy(65), 'Wrong suspect AND they beat you in combat!', {
+                fontFamily: 'monospace', fontSize: '14px', color: '#CC4444'
             }).setOrigin(0.5);
 
-            this.add.sprite(cx - 80, 150, 'bear', 0).setScale(5).setAlpha(0.4);
-            this.add.sprite(cx, 150, `npc_${this.accusedSuspect}`, 0).setScale(5);
-            this.add.sprite(cx + 80, 150, `npc_${this.killer}`, 0).setScale(5);
+            this.add.sprite(cx - 80, sy(140), 'bear', 0).setScale(4).setAlpha(0.4);
+            this.add.sprite(cx, sy(140), `npc_${this.accusedSuspect}`, 0).setScale(4);
+            this.add.sprite(cx + 80, sy(140), `npc_${this.killer}`, 0).setScale(4);
 
-            this.add.text(cx + 80, 105, '← REAL KILLER', {
-                fontFamily: 'monospace', fontSize: '11px', color: '#CC3333'
+            this.add.text(cx + 80, sy(100), '← REAL KILLER', {
+                fontFamily: 'monospace', fontSize: '10px', color: '#CC3333'
             }).setOrigin(0.5);
 
-            this.add.text(cx, 220, `${accusedData.name} was innocent!\n${killerData.name} was the real killer!`, {
-                fontFamily: 'monospace', fontSize: '18px', color: '#CC8833', fontStyle: 'bold', align: 'center'
+            this.add.text(cx, sy(210), `${accusedData.name} was innocent!\n${killerData.name} was the real killer!`, {
+                fontFamily: 'monospace', fontSize: '16px', color: '#CC8833', fontStyle: 'bold', align: 'center'
             }).setOrigin(0.5);
 
             const mockLines = {
@@ -224,16 +231,16 @@ class ResultScene extends Phaser.Scene {
                 parrot: '"SQUAWK! WRONG WRONG WRONG! WORST DETECTIVE EVER! SQUAWK HAHAHA!"'
             };
 
-            this.add.text(cx, 290, mockLines[this.killer], {
-                fontFamily: 'monospace', fontSize: '13px', color: '#CC8888', fontStyle: 'italic',
+            this.add.text(cx, sy(275), mockLines[this.killer], {
+                fontFamily: 'monospace', fontSize: '12px', color: '#CC8888', fontStyle: 'italic',
                 wordWrap: { width: 700 }, align: 'center'
             }).setOrigin(0.5);
 
-            this.add.text(cx, 350, '"I need more practice... at EVERYTHING.\nBut a bear never gives up!"', {
-                fontFamily: 'monospace', fontSize: '15px', color: '#CCAA44', fontStyle: 'italic', align: 'center'
+            this.add.text(cx, sy(335), '"I need more practice... at EVERYTHING.\nBut a bear never gives up!"', {
+                fontFamily: 'monospace', fontSize: '14px', color: '#CCAA44', fontStyle: 'italic', align: 'center'
             }).setOrigin(0.5);
 
-            this.showCaseReport(cx, 410);
+            this.showCaseReport(cx, 390);
         });
 
         this.time.delayedCall(2000, () => this.addPlayAgain(cx));
@@ -241,26 +248,29 @@ class ResultScene extends Phaser.Scene {
 
     // --- Shared helpers ---
     showCaseReport(cx, startY) {
-        this.add.text(cx, startY, '--- CASE REPORT ---', {
-            fontFamily: 'monospace', fontSize: '14px', color: '#8877AA'
+        const sy = this.sy;
+        this.add.text(cx, sy(startY), '--- CASE REPORT ---', {
+            fontFamily: 'monospace', fontSize: '13px', color: '#8877AA'
         }).setOrigin(0.5);
 
         const m = Math.floor(this.gameTime / 60), s = this.gameTime % 60;
-        this.add.text(cx, startY + 45, [
+        this.add.text(cx, sy(startY + 35), [
             `Time: ${m}m ${s}s`,
             `Clues: ${this.cluesFound.length}/${this.totalClues}`,
             `Interviews: ${this.npcsInterviewed.length}/6`,
             `Weapon: ${this.weapon}`,
             `Scene: ${this.crimeRoom}`
         ].join('  |  '), {
-            fontFamily: 'monospace', fontSize: '12px', color: '#887799', align: 'center'
+            fontFamily: 'monospace', fontSize: '11px', color: '#887799', align: 'center'
         }).setOrigin(0.5);
     }
 
     addPlayAgain(cx) {
-        const btn = this.add.rectangle(cx, 560, 280, 40, 0x5A4A7A).setInteractive({ useHandCursor: true });
-        const label = this.add.text(cx, 560, 'Play Again (New Mystery)', {
-            fontFamily: 'monospace', fontSize: '16px', color: '#DDCCEE'
+        const sy = this.sy;
+        const btnY = sy(520);
+        const btn = this.add.rectangle(cx, btnY, 280, 40, 0x5A4A7A).setInteractive({ useHandCursor: true });
+        const label = this.add.text(cx, btnY, 'Play Again (New Mystery)', {
+            fontFamily: 'monospace', fontSize: '15px', color: '#DDCCEE'
         }).setOrigin(0.5);
 
         btn.on('pointerover', () => { btn.setFillStyle(0x7A6A9A); label.setColor('#FFFFFF'); });

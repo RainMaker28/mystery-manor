@@ -378,12 +378,13 @@ class GameScene extends Phaser.Scene {
 
     // ==================== UI ====================
     createUI() {
+        updateSafeZone();
         this.clueGoal = SPEED_MODE ? 1 : 3;
         this.interviewGoal = SPEED_MODE ? 1 : 3;
 
         const cCount = this.cluesFound.length;
         const cDone = cCount >= this.clueGoal;
-        this.clueText = this.add.text(GAME_WIDTH - 20, 16,
+        this.clueText = this.add.text(SAFE.right, SAFE.top + 10,
             `Clues: ${cCount}${cDone ? ' ✓' : ` (need ${this.clueGoal})`}`, {
             fontFamily: 'monospace', fontSize: '14px', color: cDone ? '#44CC44' : '#FF4444',
             backgroundColor: '#000000BB', padding: { x: 6, y: 3 }
@@ -391,18 +392,18 @@ class GameScene extends Phaser.Scene {
 
         const iCount = this.npcsInterviewed.length;
         const iDone = iCount >= this.interviewGoal;
-        this.interviewText = this.add.text(GAME_WIDTH - 20, 40,
+        this.interviewText = this.add.text(SAFE.right, SAFE.top + 34,
             `Interviewed: ${iCount}${iDone ? ' ✓' : ` (need ${this.interviewGoal})`}`, {
             fontFamily: 'monospace', fontSize: '14px', color: iDone ? '#44CC44' : '#4488FF',
             backgroundColor: '#000000BB', padding: { x: 6, y: 3 }
         }).setOrigin(1, 0.5).setDepth(20).setScrollFactor(0);
 
-        this.promptText = this.add.text(GAME_WIDTH / 2, GAME_HEIGHT - 50, '', {
+        this.promptText = this.add.text(GAME_WIDTH / 2, SAFE.bottom - 30, '', {
             fontFamily: 'monospace', fontSize: '16px', color: '#FFFFFF',
             backgroundColor: '#000000DD', padding: { x: 10, y: 5 }
         }).setOrigin(0.5).setDepth(20).setScrollFactor(0).setVisible(false);
 
-        this.journalHint = this.add.text(20, 16, '[J] Journal', {
+        this.journalHint = this.add.text(SAFE.left + 10, SAFE.top + 10, '[J] Journal', {
             fontFamily: 'monospace', fontSize: '13px', color: '#665588',
             backgroundColor: '#000000BB', padding: { x: 6, y: 3 }
         }).setDepth(20).setScrollFactor(0);
@@ -427,8 +428,10 @@ class GameScene extends Phaser.Scene {
 
         const textSpeed = SPEED_MODE ? 10 : 25;
 
-        this.dialogueBorder = this.add.rectangle(GAME_WIDTH / 2, GAME_HEIGHT - 100, GAME_WIDTH - 36, 184, 0xCCAA44).setDepth(29).setScrollFactor(0);
-        this.dialogueBg = this.add.rectangle(GAME_WIDTH / 2, GAME_HEIGHT - 100, GAME_WIDTH - 44, 176, 0x222244).setDepth(30).setScrollFactor(0);
+        const dlgBottom = SAFE.bottom;
+        const dlgCenterY = dlgBottom - 90;
+        this.dialogueBorder = this.add.rectangle(GAME_WIDTH / 2, dlgCenterY, GAME_WIDTH - 36, 168, 0xCCAA44).setDepth(29).setScrollFactor(0);
+        this.dialogueBg = this.add.rectangle(GAME_WIDTH / 2, dlgCenterY, GAME_WIDTH - 44, 160, 0x222244).setDepth(30).setScrollFactor(0);
 
         let speakerName = 'Detective Bear', speakerColor = '#CCAA44';
         if (speakerType !== 'bear' && this.npcData[speakerType]) {
@@ -436,16 +439,16 @@ class GameScene extends Phaser.Scene {
             speakerColor = this.npcData[speakerType].color;
         }
 
-        this.dialogueName = this.add.text(50, GAME_HEIGHT - 182, speakerName, {
+        this.dialogueName = this.add.text(SAFE.left + 30, dlgCenterY - 72, speakerName, {
             fontFamily: 'monospace', fontSize: '16px', color: speakerColor, fontStyle: 'bold'
         }).setDepth(31).setScrollFactor(0);
 
-        this.dialogueText = this.add.text(50, GAME_HEIGHT - 158, '', {
+        this.dialogueText = this.add.text(SAFE.left + 30, dlgCenterY - 48, '', {
             fontFamily: 'monospace', fontSize: '15px', color: '#DDDDEE',
             wordWrap: { width: GAME_WIDTH - 100 }, lineSpacing: 6
         }).setDepth(31).setScrollFactor(0);
 
-        this.dialogueContinue = this.add.text(GAME_WIDTH - 50, GAME_HEIGHT - 18, '[ Click / Space ]', {
+        this.dialogueContinue = this.add.text(SAFE.right - 10, dlgBottom - 6, '[ Click / Space ]', {
             fontFamily: 'monospace', fontSize: '13px', color: '#8877AA'
         }).setOrigin(1, 0.5).setDepth(31).setScrollFactor(0).setVisible(false);
 
@@ -545,7 +548,8 @@ class GameScene extends Phaser.Scene {
             wordWrap: { width: 560 }, lineSpacing: 3
         }).setDepth(41).setScrollFactor(0));
 
-        this.journalElements.push(this.add.text(cx, cy + 235, 'Press J or ESC to close', {
+        const closeLabel = TouchControls.enabled ? 'Tap 📓 to close' : 'Press J or ESC to close';
+        this.journalElements.push(this.add.text(cx, cy + 220, closeLabel, {
             fontFamily: 'monospace', fontSize: '14px', color: '#8B6B4B'
         }).setOrigin(0.5).setDepth(41).setScrollFactor(0));
     }

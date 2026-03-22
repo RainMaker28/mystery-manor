@@ -19,7 +19,10 @@ class TitleScene extends Phaser.Scene {
                 SoundManager.playTitleMusic();
             }
         });
+        updateSafeZone();
         const cx = GAME_WIDTH / 2;
+        // Remap Y positions so all content fits within the ENVELOP safe zone
+        const sy = (y) => SAFE.top + 10 + (y - 70) / 460 * (SAFE.bottom - SAFE.top - 20);
 
         // Dark background
         this.cameras.main.setBackgroundColor('#1A1A2E');
@@ -40,30 +43,30 @@ class TitleScene extends Phaser.Scene {
         this.drawManorSilhouette();
 
         // Title text with shadow
-        this.add.text(cx + 2, 72, 'MYSTERY MANOR', {
+        this.add.text(cx + 2, sy(72), 'MYSTERY MANOR', {
             fontFamily: 'monospace',
-            fontSize: '52px',
+            fontSize: '48px',
             color: '#000000',
             fontStyle: 'bold'
         }).setOrigin(0.5);
 
-        this.add.text(cx, 70, 'MYSTERY MANOR', {
+        this.add.text(cx, sy(70), 'MYSTERY MANOR', {
             fontFamily: 'monospace',
-            fontSize: '52px',
+            fontSize: '48px',
             color: '#CCAA44',
             fontStyle: 'bold'
         }).setOrigin(0.5);
 
         // Subtitle
-        this.add.text(cx, 115, 'A Bear Detective Story', {
+        this.add.text(cx, sy(115), 'A Bear Detective Story', {
             fontFamily: 'monospace',
-            fontSize: '18px',
+            fontSize: '16px',
             color: '#8877AA'
         }).setOrigin(0.5);
 
         // Bear character preview
         if (this.textures.exists('bear')) {
-            this.bearPreview = this.add.sprite(cx, 190, 'bear', 0).setScale(5);
+            this.bearPreview = this.add.sprite(cx, sy(185), 'bear', 0).setScale(4);
             this.time.addEvent({
                 delay: 3000,
                 callback: () => {
@@ -79,7 +82,7 @@ class TitleScene extends Phaser.Scene {
         }
 
         // Detective Mode button
-        this.createButton(cx, 300, 'Detective Mode', () => {
+        this.createButton(cx, sy(290), 'Detective Mode', () => {
             SoundManager.init();
             SoundManager.resume();
             SoundManager.playClick();
@@ -91,9 +94,9 @@ class TitleScene extends Phaser.Scene {
         });
 
         // Survival Mode button (coming soon)
-        this.createButton(cx, 360, 'Survival Mode', null, true);
+        this.createButton(cx, sy(350), 'Survival Mode', null, true);
 
-        this.add.text(cx + 130, 360, 'SOON', {
+        this.add.text(cx + 130, sy(350), 'SOON', {
             fontFamily: 'monospace',
             fontSize: '14px',
             color: '#CCAA44',
@@ -102,7 +105,7 @@ class TitleScene extends Phaser.Scene {
         }).setOrigin(0.5);
 
         // Speed mode toggle
-        const speedLabel = this.add.text(cx, 420, `Quick Mode: ${SPEED_MODE ? 'ON' : 'OFF'}`, {
+        const speedLabel = this.add.text(cx, sy(405), `Quick Mode: ${SPEED_MODE ? 'ON' : 'OFF'}`, {
             fontFamily: 'monospace',
             fontSize: '16px',
             color: SPEED_MODE ? '#44CC44' : '#665588',
@@ -110,7 +113,7 @@ class TitleScene extends Phaser.Scene {
             padding: { x: 8, y: 4 }
         }).setOrigin(0.5).setInteractive({ useHandCursor: true });
 
-        this.add.text(cx, 445, 'Fewer clues needed, faster text, shorter game', {
+        this.add.text(cx, sy(430), 'Fewer clues needed, faster text, shorter game', {
             fontFamily: 'monospace',
             fontSize: '12px',
             color: '#554477'
@@ -123,16 +126,19 @@ class TitleScene extends Phaser.Scene {
             speedLabel.setColor(SPEED_MODE ? '#44CC44' : '#665588');
         });
 
-        // Instructions
-        this.add.text(cx, 500, 'Arrow keys / WASD to move  |  Click or Space to interact  |  J for journal', {
+        // Instructions - shorter on mobile
+        const instrText = TouchControls.enabled
+            ? 'Joystick to move  |  ACT to interact  |  📓 for journal'
+            : 'Arrow keys / WASD to move  |  Click or Space to interact  |  J for journal';
+        this.add.text(cx, sy(490), instrText, {
             fontFamily: 'monospace',
-            fontSize: '14px',
+            fontSize: '13px',
             color: '#665588'
         }).setOrigin(0.5);
 
-        this.add.text(cx, 530, 'Find the killer. Make your accusation.', {
+        this.add.text(cx, sy(520), 'Find the killer. Make your accusation.', {
             fontFamily: 'monospace',
-            fontSize: '16px',
+            fontSize: '15px',
             color: '#887799'
         }).setOrigin(0.5);
 
@@ -144,8 +150,8 @@ class TitleScene extends Phaser.Scene {
             loop: true
         });
 
-        this.flame1 = this.add.rectangle(cx - 185, 68, 6, 8, 0xFFAA22);
-        this.flame2 = this.add.rectangle(cx + 185, 68, 6, 8, 0xFFAA22);
+        this.flame1 = this.add.rectangle(cx - 185, sy(68), 6, 8, 0xFFAA22);
+        this.flame2 = this.add.rectangle(cx + 185, sy(68), 6, 8, 0xFFAA22);
 
         // Fade in
         this.cameras.main.fadeIn(1000, 0, 0, 0);

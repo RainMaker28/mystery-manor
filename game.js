@@ -1,34 +1,33 @@
 // Mystery Manor - Main Game Configuration
+const GAME_WIDTH = 960;
+const GAME_HEIGHT = 640;
 const TILE_SIZE = 16;
 const SCALE = 2; // Sprites scale 2x, but canvas renders at full res for crisp text
 const TILE = TILE_SIZE * SCALE; // Effective tile size = 32px
 
-// On mobile, match the screen's aspect ratio so there are zero black bars
-// Keep height at 640 and stretch width to fit the screen exactly
-const _isMobile = ('ontouchstart' in window) || (navigator.maxTouchPoints > 0);
-const _screenW = window.innerWidth || 960;
-const _screenH = window.innerHeight || 640;
-const _aspect = _screenW / _screenH;
-
-let GAME_WIDTH, GAME_HEIGHT;
-if (_isMobile) {
-    // In landscape, width > height, so aspect > 1
-    // In portrait (before rotation), aspect < 1 — still set landscape dims
-    if (_aspect >= 1) {
-        GAME_HEIGHT = 640;
-        GAME_WIDTH = Math.round(640 * _aspect);
-    } else {
-        // Portrait: assume they'll rotate, so use inverted aspect
-        GAME_HEIGHT = 640;
-        GAME_WIDTH = Math.round(640 / _aspect);
-    }
-} else {
-    GAME_WIDTH = 960;
-    GAME_HEIGHT = 640;
-}
-
 // Speed mode (toggled from title screen)
 let SPEED_MODE = false;
+
+// Safe zone: how much the ENVELOP scaling crops off each edge (in game coords)
+// Updated after game boots — scenes use this to keep UI visible
+const SAFE = { top: 0, bottom: GAME_HEIGHT, left: 0, right: GAME_WIDTH };
+
+function updateSafeZone() {
+    if (!game || !game.canvas) return;
+    const cw = game.canvas.clientWidth || GAME_WIDTH;
+    const ch = game.canvas.clientHeight || GAME_HEIGHT;
+    const scaleX = cw / GAME_WIDTH;
+    const scaleY = ch / GAME_HEIGHT;
+    const scale = Math.max(scaleX, scaleY); // ENVELOP uses max
+    const visibleW = cw / scale;
+    const visibleH = ch / scale;
+    const cropX = (GAME_WIDTH - visibleW) / 2;
+    const cropY = (GAME_HEIGHT - visibleH) / 2;
+    SAFE.top = Math.ceil(cropY) + 4;
+    SAFE.bottom = GAME_HEIGHT - Math.ceil(cropY) - 4;
+    SAFE.left = Math.ceil(cropX) + 4;
+    SAFE.right = GAME_WIDTH - Math.ceil(cropX) - 4;
+}
 
 const config = {
     type: Phaser.AUTO,
@@ -50,9 +49,13 @@ const config = {
         disableWebAudio: false
     },
     scale: {
-        mode: Phaser.Scale.FIT,
+        mode: Phaser.Scale.ENVELOP,
         autoCenter: Phaser.Scale.CENTER_BOTH
     }
 };
 
 const game = new Phaser.Game(config);
+
+// Recalculate safe zone when the game resizes or orientation changes
+window.addEventListener('resize', () => { setTimeout(updateSafeZone, 100); });
+game.events.on('ready', updateSafeZone);

@@ -118,21 +118,25 @@ class CombatScene extends Phaser.Scene {
         this.events.once('shutdown', () => window.removeEventListener('keydown', this._onKeyDown));
         this.events.once('destroy', () => window.removeEventListener('keydown', this._onKeyDown));
 
-        // ===== UI =====
-        this.heartsText = this.add.text(20, GAME_HEIGHT - 36, this.getHeartsString(), {
+        // ===== UI (positioned within safe zone for ENVELOP) =====
+        updateSafeZone();
+        this.heartsText = this.add.text(SAFE.left + 10, SAFE.bottom - 30, this.getHeartsString(), {
             fontFamily: 'monospace', fontSize: '22px', color: '#FF4444',
             backgroundColor: '#00000088', padding: { x: 6, y: 3 }
         }).setDepth(30);
 
         // Enemy health bar
-        this.enemyHPBarBg = this.add.rectangle(GAME_WIDTH/2, 50, 204, 18, 0x111111).setDepth(30);
-        this.enemyHPBar = this.add.rectangle(GAME_WIDTH/2, 50, 200, 14, 0xCC3333).setDepth(31);
-        this.add.text(GAME_WIDTH/2, 30, suspectData.name, {
+        this.enemyHPBarBg = this.add.rectangle(GAME_WIDTH/2, SAFE.top + 40, 204, 18, 0x111111).setDepth(30);
+        this.enemyHPBar = this.add.rectangle(GAME_WIDTH/2, SAFE.top + 40, 200, 14, 0xCC3333).setDepth(31);
+        this.add.text(GAME_WIDTH/2, SAFE.top + 18, suspectData.name, {
             fontFamily: 'monospace', fontSize: '14px', color: suspectData.color, fontStyle: 'bold'
         }).setOrigin(0.5).setDepth(30);
 
-        this.add.text(GAME_WIDTH/2, GAME_HEIGHT - 36,
-            'WASD/Arrows = dodge  |  Click/Space = stab', {
+        const controlHint = TouchControls.enabled
+            ? 'Joystick = dodge  |  STAB = attack'
+            : 'WASD/Arrows = dodge  |  Click/Space = stab';
+        this.add.text(GAME_WIDTH/2, SAFE.bottom - 30,
+            controlHint, {
             fontFamily: 'monospace', fontSize: '13px', color: '#AAAACC',
             backgroundColor: '#00000088', padding: { x: 6, y: 3 }
         }).setOrigin(0.5).setDepth(30);
